@@ -78,6 +78,9 @@ void loop() {
         results.value = key_value; // set the value to the key value
       }
 
+      key_value = results.value; // store the value as key_value
+      irrecv.resume(); // reset the receiver for the next code
+
       switch (results.value) {
 
         case 0xFF18E7:
@@ -107,21 +110,43 @@ void loop() {
 
         case 0xFF5AA5:
           Serial.println("|>>");
-          myMotors.write(-50, 255); //Robot turns right
+          myMotors.write(-50, 100); //Robot turns right
           break;
+
+        case 0xFFC23D:
+          Serial.println("6");
+          myMotors.write(-50, 255); //Robot turns right
+          break ;
 
         case 0xFF10EF:
           Serial.println("<<|");
-          myMotors.write(-255, 50); //Robot turns left
+          myMotors.write(-100, 50); //Robot turns left
           break;
+
+        case 0xFF22DD:
+          Serial.println("4");
+          myMotors.write(-255, 50); //Robot turns left
+          break ;
+
+        case 0xFF6897:
+          Serial.println("*");
+          inData = "O";
+          goto Obstacle;
+          break ;
+          
+        case 0xFFB04F:
+          Serial.println("#");
+          inData = "T";
+          goto LineTracking;
+          break ;
       }
-      key_value = results.value; // store the value as key_value
-      irrecv.resume(); // reset the receiver for the next code
+      
       delay(100);
       myMotors.write(0, 0);
     }
   }
-  else if ( inData == "O") {
+  else if ( inData == "O" ) {
+    Obstacle:
     a = sr04.Distance();
     Serial.print(a);
     Serial.println("cm");
@@ -156,6 +181,7 @@ void loop() {
   }
 
   else if ( inData == "T" ) {
+    LineTracking:
     myMotors.write(-100, 100); //Robot is going forward
     delay(250);
     Serial.println("#");
@@ -170,12 +196,12 @@ void loop() {
     } else {
       if (myLineSensorA3.read() == 0) {
         while (myLineSensorA4.read() == 1) {
-          myMotors.write(-80, -80); //Robot turns left
+          myMotors.write(-80, 0); //Robot turns left
         }
       } else {
         if (myLineSensorA5.read() == 0) {
           while (myLineSensorA4.read() == 1) {
-            myMotors.write(80, 80); //Robot turns right
+            myMotors.write(0, 80); //Robot turns right
           }
         }
       }
